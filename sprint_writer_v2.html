@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint Message Writer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f1923;--blue:#1d6ef5;--blue-d:#1459cc;--blue-l:#e8f0fe;
+  --teal:#0d9488;--teal-l:#ccfbf1;--purple:#7c3aed;
+  --g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;
+  --g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;
+  --green:#16a34a;--red:#dc2626;--white:#fff;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--g50);color:var(--navy);min-height:100vh;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* HEADER */
+header{background:var(--navy);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:.75rem}
+.logo-icon{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;font-weight:700}
+.logo-text{font-size:1rem;font-weight:600;color:#fff}
+.logo-sub{font-size:.65rem;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+.header-badge{font-size:.68rem;background:rgba(29,110,245,.2);color:#6ba8ff;border:1px solid rgba(29,110,245,.3);padding:3px 10px;border-radius:100px}
+
+/* API KEY BAR */
+.api-bar{background:var(--navy);border-top:1px solid rgba(255,255,255,.06);padding:.75rem 2rem;display:flex;align-items:center;gap:.75rem}
+.api-bar label{font-size:.72rem;color:rgba(255,255,255,.5);white-space:nowrap;letter-spacing:.05em;text-transform:uppercase}
+.api-bar input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:.4rem .75rem;color:#fff;font-size:.8rem;font-family:monospace;outline:none}
+.api-bar input:focus{border-color:rgba(29,110,245,.5)}
+.api-bar input::placeholder{color:rgba(255,255,255,.2)}
+.api-note{font-size:.68rem;color:rgba(255,255,255,.3)}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 110px)}
+.panel{padding:1.75rem;overflow-y:auto;max-height:calc(100vh - 110px)}
+.panel-left{border-right:1px solid var(--g200);background:#fff}
+.panel-right{background:var(--g50)}
+
+/* TABS */
+.tabs{display:flex;border:1px solid var(--g200);border-radius:8px;overflow:hidden;margin-bottom:1.5rem;background:var(--g100)}
+.tab{flex:1;padding:.55rem 1rem;font-size:.8rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--g400);transition:all .15s;text-align:center;font-family:inherit}
+.tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tab:hover:not(.active){color:var(--g600)}
+
+/* FORM */
+.field{margin-bottom:1.1rem}
+.field-label{font-size:.72rem;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;display:block}
+textarea,input[type=text],input[type=number],select{width:100%;padding:.55rem .8rem;border:1.5px solid var(--g200);border-radius:7px;font-family:inherit;font-size:.83rem;color:var(--navy);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+textarea{resize:vertical;min-height:80px;line-height:1.55}
+textarea:focus,input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,110,245,.1)}
+
+/* CAT TABLE */
+.cat-head{display:grid;grid-template-columns:1fr 1.1fr 58px 58px 22px;gap:5px;font-size:.67rem;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem;padding:0 2px}
+.cat-row{display:grid;grid-template-columns:1fr 1.1fr 58px 58px 22px;gap:5px;margin-bottom:.35rem;align-items:center}
+.cat-row input{font-size:.8rem;padding:.45rem .6rem}
+.cat-pct{font-size:.8rem;padding:.45rem .5rem;background:var(--g50);border:1.5px solid var(--g200);border-radius:7px;text-align:center;color:var(--g400)}
+.cat-rm{background:none;border:none;cursor:pointer;color:var(--g300);font-size:1rem;padding:0;line-height:1;transition:color .15s}
+.cat-rm:hover{color:var(--red)}
+.cat-total{font-size:.72rem;color:var(--g400);text-align:right;margin-top:.25rem}
+.cat-total strong{color:var(--navy);font-family:monospace}
+.add-cat{font-size:.75rem;color:var(--blue);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500;padding:.2rem 0;margin-top:.15rem;display:inline-block}
+
+/* TAGS */
+.tag-wrap{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.4rem}
+.tag-item{display:flex;align-items:center;gap:.3rem;background:var(--g100);border:1px solid var(--g200);border-radius:5px;padding:3px 8px;font-size:.73rem;color:var(--g600)}
+.tag-rm{background:none;border:none;cursor:pointer;color:var(--g400);font-size:.85rem;padding:0;line-height:1}
+.tag-rm:hover{color:var(--red)}
+.tag-input-row{display:flex;gap:.4rem}
+.tag-input-row input{flex:1;font-size:.8rem;padding:.42rem .7rem;min-height:auto}
+.tag-add{padding:.42rem .8rem;background:var(--g100);border:1.5px solid var(--g200);border-radius:7px;font-size:.78rem;cursor:pointer;color:var(--g600);font-family:inherit;white-space:nowrap;transition:all .15s}
+.tag-add:hover{background:var(--blue-l);border-color:var(--blue);color:var(--blue)}
+
+/* TONE */
+.tone-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem}
+.tone-opt{border:1.5px solid var(--g200);border-radius:7px;padding:.5rem .4rem;text-align:center;cursor:pointer;background:#fff;transition:all .15s}
+.tone-opt:hover{border-color:var(--blue)}
+.tone-opt.sel{border-color:var(--blue);background:var(--blue-l)}
+.tone-opt .ti{font-size:.85rem;display:block;margin-bottom:2px;color:var(--g400)}
+.tone-opt.sel .ti{color:var(--blue)}
+.tone-opt .tl{font-size:.68rem;font-weight:500;color:var(--g500)}
+.tone-opt.sel .tl{color:var(--blue)}
+
+/* GENERATE */
+.divider{border:none;border-top:1px solid var(--g100);margin:1.25rem 0}
+.gen-btn{width:100%;padding:.8rem;background:var(--blue);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.45rem;transition:background .15s,transform .1s;box-shadow:0 2px 8px rgba(29,110,245,.3)}
+.gen-btn:hover{background:var(--blue-d)}
+.gen-btn:active{transform:scale(.99)}
+.gen-btn:disabled{background:var(--g300);box-shadow:none;cursor:not-allowed}
+
+/* OUTPUT */
+.out-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.out-title{font-size:1.05rem;font-weight:600;color:var(--navy)}
+.out-actions{display:flex;gap:.4rem}
+.btn-copy,.btn-clear{font-size:.74rem;font-weight:500;padding:.35rem .8rem;border-radius:6px;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.btn-copy{background:var(--blue);color:#fff}
+.btn-copy:hover{background:var(--blue-d)}
+.btn-clear{background:var(--g100);color:var(--g500)}
+.btn-clear:hover{background:var(--g200)}
+
+/* SLACK PREVIEW */
+.slack{border:1px solid var(--g200);border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.slack-bar{background:#3f0e40;padding:.5rem 1rem;display:flex;align-items:center;gap:.4rem}
+.slack-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.slack-ch{font-size:.7rem;color:rgba(255,255,255,.55);font-family:monospace}
+.slack-body{padding:1rem 1.1rem}
+.slack-hdr{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.slack-av{width:27px;height:27px;border-radius:6px;background:linear-gradient(135deg,#be185d,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0}
+.slack-name{font-weight:600;font-size:.82rem;color:#1d1c1d}
+.slack-time{font-size:.7rem;color:#616061}
+.slack-msg{font-size:.81rem;line-height:1.65;color:#1d1c1d;white-space:pre-wrap;background:var(--g50);border-radius:7px;padding:.8rem 1rem;border-left:3px solid var(--purple)}
+.slack-msg.teal{border-left-color:var(--teal)}
+.slack-footer{font-size:.68rem;color:var(--g400);text-align:right;margin-top:.6rem}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;text-align:center;padding:2rem;color:var(--g400)}
+.empty-icon{font-size:2rem;margin-bottom:.75rem;opacity:.4}
+.empty-txt{font-size:.85rem;line-height:1.6;max-width:260px}
+
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:.85rem}
+.spinner{width:32px;height:32px;border:2.5px solid var(--g200);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:.82rem;color:var(--g400)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--navy);color:#fff;padding:.55rem 1.25rem;border-radius:100px;font-size:.8rem;font-weight:500;opacity:0;pointer-events:none;transition:all .25s;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:860px){.app{grid-template-columns:1fr;height:auto}.panel{max-height:none;overflow-y:visible}.panel-left{border-right:none;border-bottom:1px solid var(--g200)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <div class="logo-text">Sprint Writer</div>
+      <div class="logo-sub">AI-powered Slack messages</div>
+    </div>
+  </div>
+  <div class="header-badge">Powered by Claude</div>
+</header>
+
+<div class="api-bar">
+  <label>Anthropic API Key</label>
+  <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off">
+  <span class="api-note">Your key is never stored — only used for this session</span>
+</div>
+
+<div class="app">
+
+  <!-- LEFT: INPUT -->
+  <div class="panel panel-left">
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('ko')">🎯 Sprint Kickoff</button>
+      <button class="tab" onclick="switchTab('eos')">✅ End of Sprint</button>
+    </div>
+
+    <!-- KICKOFF FORM -->
+    <div id="form-ko">
+      <div class="field"><label class="field-label">Sprint name & dates</label><input type="text" id="ko-name" placeholder="Sprint 8 · May 19 – Jun 1"></div>
+      <div class="field"><label class="field-label">Sprint goal <span style="color:var(--blue)">*</span></label><textarea id="ko-goal" placeholder="What is the team trying to achieve this sprint?"></textarea></div>
+      <div class="field">
+        <label class="field-label">Work breakdown</label>
+        <div class="cat-head"><span>Category</span><span>Main topic</span><span style="text-align:center">pts</span><span style="text-align:center">%</span><span></span></div>
+        <div id="ko-cats">
+          <div class="cat-row"><input type="text" placeholder="Feature work"><input type="text" placeholder="e.g. Entra migration"><input type="number" placeholder="pts" oninput="recalc()"><div class="cat-pct">—</div><button class="cat-rm" onclick="rmCat(this)">×</button></div>
+          <div class="cat-row"><input type="text" placeholder="Tech debt / bugs"><input type="text" placeholder="e.g. Performance fixes"><input type="number" placeholder="pts" oninput="recalc()"><div class="cat-pct">—</div><button class="cat-rm" onclick="rmCat(this)">×</button></div>
+          <div class="cat-row"><input type="text" placeholder="Support"><input type="text" placeholder="e.g. Intune tickets"><input type="number" placeholder="pts" oninput="recalc()"><div class="cat-pct">—</div><button class="cat-rm" onclick="rmCat(this)">×</button></div>
+        </div>
+        <div class="cat-total">Total: <strong id="ko-total">0 pts</strong></div>
+        <button class="add-cat" onclick="addCat()">+ Add category</button>
+      </div>
+      <div class="field">
+        <label class="field-label">Capacity notes</label>
+        <div class="tag-wrap" id="ko-cap-tags"></div>
+        <div class="tag-input-row"><input type="text" id="ko-cap-in" placeholder="e.g. Public holiday May 1" onkeydown="if(event.key==='Enter'){e=event;e.preventDefault();addTag('ko-cap')}"><button class="tag-add" onclick="addTag('ko-cap')">Add</button></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Blockers & risks</label>
+        <div class="tag-wrap" id="ko-blk-tags"></div>
+        <div class="tag-input-row"><input type="text" id="ko-blk-in" placeholder="e.g. High support ticket volume" onkeydown="if(event.key==='Enter'){e=event;e.preventDefault();addTag('ko-blk')}"><button class="tag-add" onclick="addTag('ko-blk')">Add</button></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Tone</label>
+        <div class="tone-grid">
+          <div class="tone-opt sel" onclick="selTone(this,'professional')"><span class="ti">🎯</span><span class="tl">Professional</span></div>
+          <div class="tone-opt" onclick="selTone(this,'energetic')"><span class="ti">💪</span><span class="tl">Energetic</span></div>
+          <div class="tone-opt" onclick="selTone(this,'concise')"><span class="ti">⚡</span><span class="tl">Concise</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EOS FORM -->
+    <div id="form-eos" style="display:none">
+      <div class="field"><label class="field-label">Sprint name & dates</label><input type="text" id="eos-name" placeholder="Sprint 7 · 21 Apr – 4 May"></div>
+      <div class="field"><label class="field-label">Sprint goal <span style="color:var(--blue)">*</span></label><textarea id="eos-goal" placeholder="What was the team trying to achieve?"></textarea></div>
+      <div class="field">
+        <label class="field-label">Outcome</label>
+        <select id="eos-status">
+          <option value="done">✅ Goal achieved — all items done</option>
+          <option value="partial">⚠️ Partially achieved</option>
+          <option value="carried">🔄 Carried over to next sprint</option>
+        </select>
+      </div>
+      <div class="field">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+          <div><label class="field-label">Items completed</label><input type="number" id="eos-items" placeholder="e.g. 50"></div>
+          <div><label class="field-label">Story points</label><input type="number" id="eos-sp" placeholder="optional"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Key deliverables shipped <span style="color:var(--blue)">*</span></label>
+        <div class="tag-wrap" id="eos-del-tags"></div>
+        <div class="tag-input-row"><input type="text" id="eos-del-in" placeholder="e.g. Beta build — Entra released" onkeydown="if(event.key==='Enter'){e=event;e.preventDefault();addTag('eos-del')}"><button class="tag-add" onclick="addTag('eos-del')">Add</button></div>
+      </div>
+      <div class="field"><label class="field-label">Notes / next steps</label><textarea id="eos-notes" placeholder="Risks, shoutouts, carry-over items…" style="min-height:65px"></textarea></div>
+      <div class="field">
+        <label class="field-label">Tone</label>
+        <div class="tone-grid">
+          <div class="tone-opt sel" onclick="selTone(this,'professional')"><span class="ti">🎯</span><span class="tl">Professional</span></div>
+          <div class="tone-opt" onclick="selTone(this,'celebratory')"><span class="ti">🎉</span><span class="tl">Celebratory</span></div>
+          <div class="tone-opt" onclick="selTone(this,'concise')"><span class="ti">⚡</span><span class="tl">Concise</span></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <button class="gen-btn" id="gen-btn" onclick="generate()">
+      <span>✨</span><span id="gen-txt">Generate Slack message</span>
+    </button>
+
+  </div>
+
+  <!-- RIGHT: OUTPUT -->
+  <div class="panel panel-right">
+    <div class="out-header">
+      <div class="out-title">Your message</div>
+      <div class="out-actions">
+        <button class="btn-copy" id="copy-btn" onclick="copyMsg()" style="display:none">Copy</button>
+        <button class="btn-clear" id="clear-btn" onclick="clearOut()" style="display:none">Clear</button>
+      </div>
+    </div>
+    <div id="output">
+      <div class="empty">
+        <div class="empty-icon">💬</div>
+        <div class="empty-txt">Fill in the form and click Generate — your Slack message will appear here, ready to copy.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Copied to clipboard ✓</div>
+
+<script>
+let tab='ko', tone='professional', generated='';
+const tags={'ko-cap':[],'ko-blk':[],'eos-del':[]};
+
+function switchTab(t){
+  tab=t;
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='ko'&&i===0)||(t==='eos'&&i===1)));
+  document.getElementById('form-ko').style.display=t==='ko'?'block':'none';
+  document.getElementById('form-eos').style.display=t==='eos'?'block':'none';
+  tone='professional';
+}
+
+function recalc(){
+  const rows=[...document.querySelectorAll('#ko-cats .cat-row')];
+  const total=rows.reduce((s,r)=>s+(parseFloat(r.querySelectorAll('input')[2].value)||0),0);
+  rows.forEach(r=>{
+    const pts=parseFloat(r.querySelectorAll('input')[2].value)||0;
+    const el=r.querySelector('.cat-pct');
+    if(total>0&&pts>0){el.textContent=Math.round(pts/total*100)+'%';el.style.color='var(--blue)';}
+    else{el.textContent='—';el.style.color='var(--g400)';}
+  });
+  document.getElementById('ko-total').textContent=total+' pts';
+}
+
+function addCat(){
+  const c=document.getElementById('ko-cats');
+  const d=document.createElement('div');d.className='cat-row';
+  d.innerHTML=`<input type="text" placeholder="Category"><input type="text" placeholder="Main topic"><input type="number" placeholder="pts" oninput="recalc()"><div class="cat-pct">—</div><button class="cat-rm" onclick="rmCat(this)">×</button>`;
+  c.appendChild(d);recalc();
+}
+function rmCat(btn){
+  if(document.querySelectorAll('#ko-cats .cat-row').length>1){btn.closest('.cat-row').remove();recalc();}
+}
+
+function addTag(key){
+  const inp=document.getElementById(key+'-in');
+  const v=inp.value.trim();if(!v)return;
+  tags[key].push(v);renderTags(key);inp.value='';
+}
+function rmTag(key,i){tags[key].splice(i,1);renderTags(key);}
+function renderTags(key){
+  document.getElementById(key+'-tags').innerHTML=tags[key].map((t,i)=>
+    `<div class="tag-item">${t}<button class="tag-rm" onclick="rmTag('${key}',${i})">×</button></div>`
+  ).join('');
+}
+
+function selTone(el,t){
+  tone=t;
+  el.closest('.tone-grid').querySelectorAll('.tone-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function buildPrompt(){
+  if(tab==='ko'){
+    const name=document.getElementById('ko-name').value.trim();
+    const goal=document.getElementById('ko-goal').value.trim();
+    const rows=[...document.querySelectorAll('#ko-cats .cat-row')];
+    const cats=rows.map(r=>{
+      const ins=r.querySelectorAll('input');
+      const cat=ins[0].value.trim(),topic=ins[1].value.trim(),pts=ins[2].value.trim();
+      const pct=r.querySelector('.cat-pct').textContent;
+      if(!cat)return null;
+      return `${cat}${topic?' ('+topic+')':''}${pts?' · '+pts+' pts':''}${pct&&pct!=='—'?' ('+pct+')':''}`;
+    }).filter(Boolean);
+    const total=document.getElementById('ko-total').textContent;
+    const tones={professional:'Professional and clear. End with a brief motivational closing line.',energetic:'Energetic and motivating. End with an energising closing.',concise:'Very concise. Cut everything non-essential. No closing line.'};
+    return `Write a sprint kickoff Slack message.\n\nSprint: ${name||'Sprint [name]'}\nGoal: ${goal}\nTotal story points: ${total}\n${cats.length?'Work breakdown:\n'+cats.map(c=>'- '+c).join('\n'):''}${tags['ko-cap'].length?'\nCapacity notes:\n'+tags['ko-cap'].map(c=>'- '+c).join('\n'):''}${tags['ko-blk'].length?'\nBlockers & risks:\n'+tags['ko-blk'].map(b=>'- '+b).join('\n'):''}\n\nTone: ${tones[tone]}\nStructure: header → goal → breakdown → capacity → blockers → closing.\nUse **bold** for section labels. Use • for bullets. Use emojis at section starts only.\nOutput ONLY the message — no preamble.`;
+  } else {
+    const name=document.getElementById('eos-name').value.trim();
+    const goal=document.getElementById('eos-goal').value.trim();
+    const status={done:'Goal achieved — all items done',partial:'Partially achieved',carried:'Carried over to next sprint'}[document.getElementById('eos-status').value];
+    const items=document.getElementById('eos-items').value.trim();
+    const sp=document.getElementById('eos-sp').value.trim();
+    const notes=document.getElementById('eos-notes').value.trim();
+    const tones={professional:'Professional and clear. Acknowledge the team\'s effort.',celebratory:'Celebratory and warm. Recognise wins.',concise:'Very concise. Just the facts.'};
+    return `Write an end-of-sprint Slack message.\n\nSprint: ${name||'Sprint [name]'}\nGoal: ${goal}\nStatus: ${status}\n${items?'Items completed: '+items:''}${sp?'\nStory points: '+sp:''}\n${tags['eos-del'].length?'Key deliverables:\n'+tags['eos-del'].map(d=>'- '+d).join('\n'):''}${notes?'\nNotes: '+notes:''}\n\nTone: ${tones[tone]}\nStructure: header → goal → status → deliverables → notes.\nUse **bold** for section labels. Use • for bullets. Use emojis at section starts.\nOutput ONLY the message — no preamble.`;
+  }
+}
+
+async function generate(){
+  const apiKey=document.getElementById('api-key').value.trim();
+  if(!apiKey){alert('Please enter your Anthropic API key at the top.');document.getElementById('api-key').focus();return;}
+  const goalField=tab==='ko'?'ko-goal':'eos-goal';
+  if(!document.getElementById(goalField).value.trim()){document.getElementById(goalField).focus();return;}
+
+  const btn=document.getElementById('gen-btn');
+  const txt=document.getElementById('gen-txt');
+  btn.disabled=true;txt.textContent='Generating…';
+  document.getElementById('copy-btn').style.display='none';
+  document.getElementById('clear-btn').style.display='none';
+  document.getElementById('output').innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-txt">Writing your message…</div></div>`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-allow-browser':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:'You are an expert Product Owner who writes concise, professional Slack messages for sprint ceremonies. Output ONLY the message — no preamble, no explanation, no code blocks.',messages:[{role:'user',content:buildPrompt()}]})
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    const msg=data.content?.[0]?.text||'';
+    if(!msg)throw new Error('Empty response');
+    generated=msg;
+    const html=msg.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    const colorClass=tab==='ko'?'':'teal';
+    document.getElementById('output').innerHTML=`
+      <div class="slack">
+        <div class="slack-bar"><div class="slack-dot"></div><span class="slack-ch"># team-channel</span></div>
+        <div class="slack-body">
+          <div class="slack-hdr"><div class="slack-av">PO</div><span class="slack-name">Product Owner</span><span class="slack-time">just now</span></div>
+          <div class="slack-msg ${colorClass}">${html}</div>
+        </div>
+      </div>
+      <div class="slack-footer">Generated with Claude · ${new Date().toLocaleTimeString()}</div>`;
+    document.getElementById('copy-btn').style.display='inline-flex';
+    document.getElementById('clear-btn').style.display='inline-flex';
+  }catch(e){
+    document.getElementById('output').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt" style="color:var(--red)">Error: ${e.message}<br><small style="color:var(--g400)">Check your API key and try again.</small></div></div>`;
+  }
+  btn.disabled=false;txt.textContent='Generate Slack message';
+}
+
+function copyMsg(){
+  if(!generated)return;
+  navigator.clipboard.writeText(generated).then(()=>{
+    const t=document.getElementById('toast');t.classList.add('show');
+    document.getElementById('copy-btn').textContent='Copied ✓';
+    setTimeout(()=>{t.classList.remove('show');document.getElementById('copy-btn').textContent='Copy';},2000);
+  });
+}
+function clearOut(){
+  generated='';
+  document.getElementById('output').innerHTML=`<div class="empty"><div class="empty-icon">💬</div><div class="empty-txt">Fill in the form and click Generate — your Slack message will appear here, ready to copy.</div></div>`;
+  document.getElementById('copy-btn').style.display='none';
+  document.getElementById('clear-btn').style.display='none';
+}
+</script>
+</body>
+</html>
